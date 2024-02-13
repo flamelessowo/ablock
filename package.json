@@ -1,0 +1,27 @@
+{
+  "name": "ablock",
+  "version": "0.0.1",
+  "description": "Block russian propaganda",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/tsc && find src/ -type f | grep -v \".ts\" | xargs -I {} cp -r {} dist/ && cp -r assets dist/assets"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flamelessowo/ablock.git"
+  },
+  "author": "flamelessowo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/flamelessowo/ablock/issues"
+  },
+  "homepage": "https://github.com/flamelessowo/ablock#readme",
+  "devDependencies": {
+    "@types/chrome": "^0.0.260",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  }
+}
