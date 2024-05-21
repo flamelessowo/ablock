@@ -24,5 +24,10 @@
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": []
+  "content_scripts": [
+    {
+      "matches": ["https://www.instagram.com/*", "https://www.twitter.com/*", "https://www.youtube.com/*"],
+      "js": ["content.js"]
+    }
+  ]
 }
