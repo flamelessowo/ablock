@@ -19,7 +19,7 @@
     "tabs"
   ],
   "action": {
-    "default_popup": "hello.html"
+    "default_popup": "extension.html"
   },
   "background": {
     "service_worker": "background.js"
@@ -27,7 +27,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.instagram.com/*", "https://www.twitter.com/*", "https://www.youtube.com/*"],
-      "js": ["content.js"]
+      "js": ["content/content.js"]
     }
   ]
 }
