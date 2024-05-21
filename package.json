@@ -1,30 +1,40 @@
 {
-  "name": "ablock",
-  "version": "0.0.1",
-  "description": "Block russian propaganda",
+  "name": "chrome-extension-typescript-starter",
+  "version": "1.0.0",
+  "description": "chrome-extension-typescript-starter",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -rf /dist && ./node_modules/.bin/tsc && find src/ -type f | grep -v \".ts\" | xargs -I {} cp -r {} dist/ && [ -d dist/assets ] || cp -r assets dist/assets"
+    "watch": "webpack --config webpack/webpack.dev.js --watch",
+    "build": "webpack --config webpack/webpack.prod.js",
+    "clean": "rimraf dist",
+    "test": "npx jest",
+    "style": "prettier --write \"src/**/*.{ts,tsx}\""
   },
+  "author": "",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/flamelessowo/ablock.git"
+    "url": "https://github.com/chibat/chrome-extension-typescript-starter.git"
   },
-  "author": "flamelessowo",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/flamelessowo/ablock/issues"
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
-  "homepage": "https://github.com/flamelessowo/ablock#readme",
   "devDependencies": {
-    "@types/chrome": "^0.0.260",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.56.0",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.3.3",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4"
+    "@types/chrome": "0.0.158",
+    "@types/jest": "^29.5.0",
+    "@types/react": "^18.0.29",
+    "@types/react-dom": "^18.0.11",
+    "copy-webpack-plugin": "^9.0.1",
+    "glob": "^7.1.6",
+    "jest": "^29.5.0",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2 ",
+    "ts-jest": "^29.1.0",
+    "ts-loader": "^8.0.0",
+    "typescript": "^5.0.4",
+    "webpack": "^5.76.0",
+    "webpack-cli": "^4.0.0",
+    "webpack-merge": "^5.0.0"
   }
 }
