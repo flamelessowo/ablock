@@ -3,7 +3,7 @@ export const russian_propaganda_keywords = [
   "Putin",
   "Russia",
   "Russian",
-  "Moscow",
+  "moscow",
   "Soviet",
   "USSR",
   "KGB",
