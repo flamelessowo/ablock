@@ -1,7 +1,7 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "ablock",
-  "description": "Ablock(Agressor block) - Extension to block russian propaganda in most popular social networks",
+  "description": "Ablock (Agressor block) - Extension to block Russian propaganda in most popular social networks",
   "version": "0.0.1",
   "author": "flamelessowo",
   "icons": {
@@ -10,36 +10,39 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "options_ui": {
-    "page": "options.html"
-  },
-  "action": {
+  "options_page": "options.html",
+  "browser_action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"
   },
   "content_scripts": [
-      {
-          "matches": ["https://www.youtube.com/*", "https://twitter.com/*", "https://www.instagram.com/*"],
-          "js": ["js/vendor.js", "js/content_script.js", "tf.min.js", "tf-backend-wasm.js"]
-      }
+    {
+      "matches": ["https://www.youtube.com/*", "https://twitter.com/*", "https://www.instagram.com/*"],
+      "js": ["js/vendor.js", "js/content_script.js", "tf.min.js", "tf-backend-wasm.js"]
+    }
   ],
   "background": {
-    "service_worker": "js/background.js"
+    "scripts": ["js/background.js"],
+    "persistent": false
   },
   "web_accessible_resources": [
-    {
-      "resources": ["tf-backend-wasm.wasm"],
-      "matches": ["<all_urls>"]
-    }
+    "tf-backend-wasm.wasm",
+    "tf.min.js",
+    "model.json",
+    "group1-shard1of2.bin",
+    "group1-shard2of2.bin",
+    "vocabulary.json"
   ],
   "permissions": [
     "activeTab",
     "scripting",
     "storage",
     "downloads",
-    "tabs"
+    "tabs",
+    "https://www.youtube.com/*",
+    "https://twitter.com/*",
+    "https://www.instagram.com/*"
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ]
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
+
