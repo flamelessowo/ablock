@@ -1,29 +1,63 @@
 import { levenshtein, russian_propaganda_keywords } from "./levenstein";
 
+import React from 'react';
+import ReactDOM from 'react-dom';
+import SmallCard from './cards/SmallCard';
+
+function containsSimilarKeyword(text: string, keywords: string[] = russian_propaganda_keywords, threshold: number = 2): boolean {
+  for (const keyword of keywords) {
+    if (levenshtein(text, keyword) <= threshold) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const MutatorCallbacks = {
-  TWITTER_ARTICLE: prepareMutatorCallback('article'),
-  TWITTER_COMMENTS: prepareMutatorCallback('div[dir="auto"] span[style="text-overflow: unset;"]'),
+  TWITTER_COMMENTS: prepareMutatorCallback('article', 'div[dir="auto"] span[style="text-overflow: unset;"]'),
   YOUTUBE_VIDEO: prepareMutatorCallback('ytd-rich-item-renderer'),
   YOUTUBE_COMMENTS: prepareMutatorCallback('#content-text > span'),
   INSTAGRAM_ARTICLE: prepareMutatorCallback('article'),
   INSTAGRAM_COMMENTS: prepareMutatorCallback('span[dir="auto"]'),
 };
 
-function prepareMutatorCallback(nodeSelector: string) {
+function prepareMutatorCallback(nodeSelector: string, textSelector: string = '') {
   return (mutations: MutationRecord[]) => {
     mutations.forEach(mutation => {
       mutation.addedNodes.forEach(node => {
         if (node.nodeType === Node.ELEMENT_NODE) {
           const element = node as Element;
           element.querySelectorAll(nodeSelector).forEach(selectedNode => {
-            console.log('wtf')
-            selectedNode.innerHTML = 'Blocked'; // ADD BLOCK HANDLER
+            const textNode = selectedNode.querySelector(textSelector);
+            const textNodeContent = textNode?.textContent || '';
+            console.log(textNodeContent)
+            for (const word of textNodeContent.split(' ')) {
+              if (containsSimilarKeyword(word)) {
+                selectedNode.innerHTML = '';
+                const container = document.createElement('div');
+                selectedNode.appendChild(container);
+
+                ReactDOM.render(
+                  <React.StrictMode>
+                    <SmallCard
+                      title="Blocked"
+                      description="Blocked: Probably Propaganda"
+                    />
+                  </React.StrictMode>,
+                  container
+                );
+              }
+            }
           });
         }
       });
     });
-  }
+  };
 }
+
+export default prepareMutatorCallback;
+
+
 
 enum PageType {
   YOUTUBE = 'www.youtube.com',
@@ -75,7 +109,8 @@ class YoutubeAdapter extends Adapter {
   }
 
   prepareObserver(): MutationObserver {
-    if (window.location.pathname.includes('/watch')) {
+    console.log(window.location.href);
+    if (window.location.href.includes('watch')) {
       return new MutationObserver(MutatorCallbacks['YOUTUBE_COMMENTS']);
     }
     return new MutationObserver(MutatorCallbacks['YOUTUBE_VIDEO']);
@@ -89,10 +124,7 @@ class TwitterAdapter extends Adapter {
   }
 
   prepareObserver(): MutationObserver {
-    if (window.location.pathname.includes('/status/')) {
-      return new MutationObserver(MutatorCallbacks['TWITTER_COMMENTS'])
-    }
-    return new MutationObserver(MutatorCallbacks['TWITTER_ARTICLE'])
+    return new MutationObserver(MutatorCallbacks['TWITTER_COMMENTS'])
   }
 }
 

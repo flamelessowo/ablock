@@ -1,70 +1,59 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 
-const Options = () => {
-  const [color, setColor] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [like, setLike] = useState<boolean>(false);
+enum BlockStrategy {
+  LEVENSHTEIN = "Levenshtein Algorithm",
+  ML = "Machine Learning"
+}
+
+const Popup = () => {
+  const [count, setCount] = useState(0);
+  const [currentURL, setCurrentURL] = useState<string>();
+  const [strategy, setStrategy] = useState<BlockStrategy>(BlockStrategy.LEVENSHTEIN);
 
   useEffect(() => {
-    // Restores select box and checkbox state using the preferences
-    // stored in chrome.storage.
-    chrome.storage.sync.get(
-      {
-        favoriteColor: "red",
-        likesColor: true,
-      },
-      (items) => {
-        setColor(items.favoriteColor);
-        setLike(items.likesColor);
-      }
-    );
+    chrome.action.setBadgeText({ text: count.toString() });
+  }, [count]);
+
+  useEffect(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      setCurrentURL(tabs[0].url);
+    });
   }, []);
 
-  const saveOptions = () => {
-    // Saves options to chrome.storage.sync.
-    chrome.storage.sync.set(
-      {
-        favoriteColor: color,
-        likesColor: like,
-      },
-      () => {
-        // Update status to let user know options were saved.
-        setStatus("Options saved.");
-        const id = setTimeout(() => {
-          setStatus("");
-        }, 1000);
-        return () => clearTimeout(id);
-      }
-    );
+  const handleStrategyChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setStrategy(event.target.value as BlockStrategy);
   };
 
   return (
-    <>
-      <div>
-        Favorite color: <select
-          value={color}
-          onChange={(event) => setColor(event.target.value)}
+    <div className="p-5 font-sans">
+      <h1 className="text-2xl font-bold mb-4">Agressor BLock</h1>
+      <ul className="mb-4">
+        <li><strong>Current URL:</strong> {currentURL}</li>
+        <li><strong>Current Time:</strong> {new Date().toLocaleTimeString()}</li>
+      </ul>
+      <div className="mb-4">
+        <label htmlFor="strategy" className="mr-2">Blocking Strategy:</label>
+        <select
+          id="strategy"
+          value={strategy}
+          onChange={handleStrategyChange}
+          className="border rounded p-1"
         >
-          <option value="red">red</option>
-          <option value="green">green</option>
-          <option value="blue">blue</option>
-          <option value="yellow">yellow</option>
+          <option value={BlockStrategy.LEVENSHTEIN}>{BlockStrategy.LEVENSHTEIN}</option>
+          <option value={BlockStrategy.ML}>{BlockStrategy.ML}</option>
         </select>
       </div>
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            checked={like}
-            onChange={(event) => setLike(event.target.checked)}
-          />
-          I like colors.
-        </label>
+      <button
+        onClick={() => setCount(count + 1)}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Count up
+      </button>
+      <div className="mt-4">
+        <strong>Count:</strong> {count}
       </div>
-      <div>{status}</div>
-      <button onClick={saveOptions}>Save</button>
-    </>
+    </div>
   );
 };
 
@@ -72,6 +61,7 @@ const root = createRoot(document.getElementById("root")!);
 
 root.render(
   <React.StrictMode>
-    <Options />
+    <Popup />
   </React.StrictMode>
 );
+
