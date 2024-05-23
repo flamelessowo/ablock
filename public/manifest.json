@@ -31,7 +31,11 @@
     "model.json",
     "group1-shard1of2.bin",
     "group1-shard2of2.bin",
-    "vocabulary.json"
+    "vocabulary.json",
+    "vocabulary5000.json",
+    "web_model5000/model.json",
+    "web_model5000/group1-shard1of2.bin",
+    "web_model5000/group1-shard2of2.bin"
   ],
   "permissions": [
     "activeTab",

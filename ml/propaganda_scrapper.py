@@ -20,7 +20,7 @@ params = "?q=*&account_country-Russia=true&product=(product eq 'Hamilton')&start
 
 # Loop through multiple pages and collect results
 all_results = []
-target_count = 1000# The target number of examples
+target_count = 5000# The target number of examples
 page = 1
 
 while len(all_results) < target_count:
@@ -45,7 +45,7 @@ data = {
 }
 
 # Save the data to a JSON file
-with open('data.json', 'w', encoding='utf-8') as f:
+with open('data_5000.json', 'w', encoding='utf-8') as f:
     json.dump(data, f, ensure_ascii=False, indent=4)
 
 print(f"Scraped {len(all_results)} items and saved to data.json")

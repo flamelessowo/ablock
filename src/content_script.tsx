@@ -2,10 +2,11 @@ import { AblockApp, setVocabulary } from "./core";
 import * as tf from '@tensorflow/tfjs';
 
 // Load the vocabulary JSON file
-fetch(chrome.runtime.getURL('vocabulary.json'))
+fetch(chrome.runtime.getURL('vocabulary5000.json'))
   .then(response => response.json())
   .then(data => {
     setVocabulary(data);
+    console.log(data.length)
     // Initialize TensorFlow.js and load the model
     initTensorFlow();
   });
@@ -29,7 +30,7 @@ function initTensorFlow() {
 }
 
 async function loadModel() {
-  const modelUrl = chrome.runtime.getURL('model.json');
+  const modelUrl = chrome.runtime.getURL('web_model5000/model.json');
   const model = await tf.loadLayersModel(modelUrl);
   (window as any).tfModel = model;
 }

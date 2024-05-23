@@ -27,9 +27,9 @@ base_urls = {
 
 # Collect results from multiple pages
 all_results = []
-target_count = 1000  # The target number of examples
+target_count = 5000  # The target number of examples
 current_count = 0
-max_pages_per_url = 10  # Number of pages to scrape per base URL
+max_pages_per_url = 40  # Number of pages to scrape per base URL
 
 for base_url, page_param in base_urls.items():
     for page in range(1, max_pages_per_url + 1):
@@ -55,8 +55,8 @@ data = {
 }
 
 # Save the data to a JSON file
-with open('not_propaganda.json', 'w', encoding='utf-8') as f:
+with open('not_propaganda5000.json', 'w', encoding='utf-8') as f:
     json.dump(data, f, ensure_ascii=False, indent=4)
 
-print(f"Scraped {len(all_results)} items and saved to not_propaganda.json")
+print(f"Scraped {len(all_results)} items and saved to not_propaganda5000.json")
 
