@@ -9,7 +9,7 @@ export function setVocabulary(vocab: { [key: string]: number }) {
 }
 
 function containsCyrillic(text: string): boolean {
-  return /[А-Яа-яЁё]/.test(text);
+  return /[ыъёэ]/i.test(text);
 }
 
 // Tokenizer and padding functions
