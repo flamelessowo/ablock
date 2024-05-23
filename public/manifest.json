@@ -20,12 +20,18 @@
   "content_scripts": [
       {
           "matches": ["https://www.youtube.com/*", "https://twitter.com/*", "https://www.instagram.com/*"],
-          "js": ["js/vendor.js", "js/content_script.js"]
+          "js": ["js/vendor.js", "js/content_script.js", "tf.min.js", "tf-backend-wasm.js"]
       }
   ],
   "background": {
     "service_worker": "js/background.js"
   },
+  "web_accessible_resources": [
+    {
+      "resources": ["tf-backend-wasm.wasm"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "permissions": [
     "activeTab",
     "scripting",

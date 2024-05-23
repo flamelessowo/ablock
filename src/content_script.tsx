@@ -9,24 +9,38 @@
 //       app.run()
 //     }
 //   });
+
+
+
 import { AblockApp } from "./core";
 
-// Load TensorFlow.js via CDN
+// Initialize TensorFlow.js with WASM backend
 const tfScript = document.createElement('script');
-tfScript.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs';
+tfScript.src = chrome.runtime.getURL('tf.min.js');
 tfScript.onload = () => {
-  // Once TensorFlow.js is loaded, run the application
-  const app = new AblockApp();
-  app.run();
+  const wasmScript = document.createElement('script');
+  wasmScript.src = chrome.runtime.getURL('tf-backend-wasm.js');
+  wasmScript.onload = () => {
+    const tf = (window as any).tf;
+    tf.setBackend('wasm').then(() => {
+      // Load the WASM binary file
+      tf.env().set('WASM_PATH', chrome.runtime.getURL('tf-backend-wasm.wasm'));
 
-  chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-      if (request.message === 'hello!') {
-        console.log('update')
-        app.resolveCurrentPage()
-        app.run()
-      }
+      // Once TensorFlow.js is loaded and the backend is set, run the application
+      const app = new AblockApp();
+      app.run();
+
+      chrome.runtime.onMessage.addListener(
+        function(request, sender, sendResponse) {
+          if (request.message === 'hello!') {
+            console.log('update');
+            app.resolveCurrentPage();
+            app.run();
+          }
+        });
     });
+  };
+  (document.head || document.documentElement).appendChild(wasmScript);
 };
 (document.head || document.documentElement).appendChild(tfScript);
 
