@@ -60,7 +60,7 @@ async function predictUsingModel(text: string): Promise<boolean> {
   //console.log(`Prediction value: ${predictionValue}`);
 
   console.log(predictionValue)
-  return predictionValue > 0.07; // Assuming 0.5 as the threshold for blocking
+  return predictionValue > 0.4; // Assuming 0.5 as the threshold for blocking
 }
 
 const MutatorCallbacks = {
