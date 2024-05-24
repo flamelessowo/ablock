@@ -1,6 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import SmallCard from './cards/SmallCard';
+import { levenshtein, russian_propaganda_keywords } from './levenstein';
+
+enum BlockingStrategy {
+  LEVENSHTEIN,
+  ML
+}
+
+const BLOCKING_STRATEGY = BlockingStrategy.LEVENSHTEIN;
 
 let vocabulary: { [key: string]: number } = {};
 
@@ -37,6 +45,28 @@ function wordToIndex(word: string): number {
   return vocabulary[word] || 0;  // 0 for unknown words
 }
 
+function containsSimilarKeyword(text: string, keywords: string[] = russian_propaganda_keywords, threshold: number = 2): boolean {
+  for (const keyword of keywords) {
+    if (levenshtein(text, keyword) <= threshold) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function predictUsginLevenshtein(text: string): boolean {
+  const words = text.split(' ');
+  if (containsCyrillic(text)) {
+    return true;
+  }
+  for (const word of words) {
+    if (containsSimilarKeyword(word)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 async function predictUsingModel(text: string): Promise<boolean> {
   const tf = (window as any).tf;
   const model = (window as any).tfModel;
@@ -44,31 +74,25 @@ async function predictUsingModel(text: string): Promise<boolean> {
     throw new Error('TensorFlow.js or model not loaded');
   }
 
-  //console.log(`Text for prediction: ${text}`);
-
   const sequences = getTokenizer().textsToSequences([text]);
-  //console.log(`Tokenized sequences: ${JSON.stringify(sequences)}`);
 
-  const paddedSequences = padSequences(sequences, 100); // Use appropriate maxLen
-  //console.log(`Padded sequences: ${JSON.stringify(paddedSequences)}`);
+  const paddedSequences = padSequences(sequences, 100);
 
   const inputTensor = tf.tensor2d(paddedSequences);
-  //console.log(`Input tensor: ${inputTensor}`);
 
   const prediction = model.predict(inputTensor) as any;
   const predictionValue = prediction.dataSync()[0];
-  //console.log(`Prediction value: ${predictionValue}`);
 
   console.log(predictionValue)
-  return predictionValue > 0.4; // Assuming 0.5 as the threshold for blocking
+  return predictionValue > 0.4;
 }
 
 const MutatorCallbacks = {
   TWITTER_COMMENTS: prepareMutatorCallback('article', 'div[dir="auto"] span[style="text-overflow: unset;"]'),
-  YOUTUBE_VIDEO: prepareMutatorCallback('ytd-rich-item-renderer'),
   YOUTUBE_COMMENTS: prepareMutatorCallback('ytd-expander', '#content-text > span'),
-  INSTAGRAM_ARTICLE: prepareMutatorCallback('article'),
+  INSTAGRAM_ARTICLE: prepareMutatorCallback('article', 'span._ap3a'),
   INSTAGRAM_COMMENTS: prepareMutatorCallback('span[dir="auto"]'),
+  FACEBOOK_ARTICLES: prepareMutatorCallback('blockquote', 'div[style="text-align: start;"]')
 };
 
 function prepareMutatorCallback(nodeSelector: string, textSelector: string = '') {
@@ -81,6 +105,24 @@ function prepareMutatorCallback(nodeSelector: string, textSelector: string = '')
           for (const selectedNode of textNodes) {
             const textNode = selectedNode.querySelector(textSelector);
             const textNodeContent = textNode?.textContent || '';
+            // @ts-ignore: Suppress error about incompatible types
+            if (BLOCKING_STRATEGY === BlockingStrategy.LEVENSHTEIN) {
+              if (predictUsginLevenshtein(textNodeContent)) {
+                selectedNode.innerHTML = '';
+                const container = document.createElement('div');
+                selectedNode.appendChild(container);
+                ReactDOM.render(
+                  <React.StrictMode>
+                    <SmallCard
+                      title="Blocked"
+                      description="Blocked: Probably Propaganda"
+                    />
+                  </React.StrictMode>,
+                  container
+                );
+              }
+              return;
+            }
             if (containsCyrillic(textNodeContent) || await predictUsingModel(textNodeContent)) {
               selectedNode.innerHTML = '';
               const container = document.createElement('div');
@@ -109,6 +151,7 @@ enum PageType {
   YOUTUBE = 'www.youtube.com',
   TWITTER = 'twitter.com',
   INSTAGRAM = 'www.instagram.com',
+  FACEBOOK = 'www.facebook.com',
 }
 
 interface Application {
@@ -163,6 +206,16 @@ class InstagramAdapter extends Adapter {
   }
 }
 
+class FacebookAdapter extends Adapter {
+  constructor() {
+    super();
+  }
+
+  prepareObserver(): MutationObserver {
+    return new MutationObserver(MutatorCallbacks['FACEBOOK_ARTICLES']);
+  }
+}
+
 export class AblockApp implements Application {
   adapter!: Adapter; // Non-null assertion operator
 
@@ -188,6 +241,10 @@ export class AblockApp implements Application {
     }
     if (url.includes(PageType.INSTAGRAM)) {
       return new InstagramAdapter();
+    }
+    if (url.includes(PageType.FACEBOOK)) {
+      return new FacebookAdapter()
+
     }
     return new InstagramAdapter();
   }

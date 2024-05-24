@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import json
 import time
 
-# Function to scrape a single page
+
 def scrape_page(url):
     response = requests.get(url)
     response.raise_for_status()
@@ -11,7 +11,7 @@ def scrape_page(url):
     results = soup.find_all('p')
     return [result.get_text(strip=True) for result in results]
 
-# List of URLs to scrape from with pagination support
+
 base_urls = {
     "https://www.bbc.com/news": "?page=",
     "https://www.bbc.com/news/world": "?page=",
@@ -25,11 +25,11 @@ base_urls = {
     "https://www.nytimes.com/section/technology": "?page="
 }
 
-# Collect results from multiple pages
+
 all_results = []
-target_count = 5000  # The target number of examples
+target_count = 5000
 current_count = 0
-max_pages_per_url = 40  # Number of pages to scrape per base URL
+max_pages_per_url = 40
 
 for base_url, page_param in base_urls.items():
     for page in range(1, max_pages_per_url + 1):
@@ -39,22 +39,22 @@ for base_url, page_param in base_urls.items():
         all_results.extend(results)
         current_count += len(results)
         print(f"Current count: {current_count}")
-        time.sleep(1)  # Be polite and avoid overwhelming the server
+        time.sleep(1)
 
         if current_count >= target_count:
             break
     if current_count >= target_count:
         break
 
-# Limit to the target count if more than necessary were collected
+
 all_results = all_results[:target_count]
 
-# Prepare the data to be saved in JSON format
+
 data = {
     "notPropaganda": all_results
 }
 
-# Save the data to a JSON file
+
 with open('not_propaganda5000.json', 'w', encoding='utf-8') as f:
     json.dump(data, f, ensure_ascii=False, indent=4)
 

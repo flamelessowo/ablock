@@ -17,7 +17,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.youtube.com/*", "https://twitter.com/*", "https://www.instagram.com/*"],
+      "matches": ["https://www.youtube.com/*", "https://twitter.com/*", "https://www.instagram.com/*", "https://www.facebook.com/*"],
       "js": ["js/vendor.js", "js/content_script.js", "tf.min.js", "tf-backend-wasm.js"]
     }
   ],
